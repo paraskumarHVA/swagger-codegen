@@ -4,17 +4,13 @@ import io.swagger.codegen.languages.JavaClientCodegen;
 import io.swagger.models.Swagger;
 import io.swagger.parser.SwaggerParser;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mock;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.util.List;
-import java.util.Map;
 
-import static org.testng.Assert.*;
-//import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class asvTestCases {
     private static final String TEST_SKIP_OVERWRITE = "testSkipOverwrite";
@@ -24,7 +20,6 @@ public class asvTestCases {
     private static final String MODEL_CATEGORY_FILE = "/src/main/java/io/swagger/client/model/Category.java";
     private static final String MODEL_TAG_FILE = "/src/main/java/io/swagger/client/model/Tag.java";
     private static final String MODEL_PET_FILE = "/src/main/java/io/swagger/client/model/Pet.java";
-    private static final String MODEL_API_RESPONSE_FILE = "/src/main/java/io/swagger/client/model/ApiResponse.java";
     private static final String API_CLIENT_FILE = "/src/main/java/io/swagger/client/ApiClient.java";
     private static final String BUILD_GRADLE_FILE = "build.gradle";
 
@@ -38,10 +33,7 @@ public class asvTestCases {
     private static final String SWAGGER_HOST = "petstore.swagger.io";
     private static final String SWAGGER_BASE_PATH = "/v2";
 
-    @Mock
-    private TemporaryFolder folder = new TemporaryFolder();
-    @Mock
-    private SwaggerParser swaggerParser = new SwaggerParser();
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @BeforeMethod
     public void setUp() throws Exception {
@@ -57,7 +49,7 @@ public class asvTestCases {
     public void testRequirementOne(){
         final File output = folder.getRoot();
 
-        final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
+        final Swagger swagger = new SwaggerParser().read("src/test/resources/petstore.json");
         CodegenConfig codegenConfig = new JavaClientCodegen();
         codegenConfig.setOutputDir(output.getAbsolutePath());
 
@@ -71,20 +63,20 @@ public class asvTestCases {
 
     @Test
     public void testRequirementTwo(){
-        final Swagger swagger = swaggerParser.read("src/test/resources/2_0/petstore.json");
+        final Swagger swagger = new SwaggerParser().read("src/test/resources/2_0/petstore.json");
 
-        assertEquals(swagger.getSwagger().toString(), SWAGGER_VERSION);
-        assertEquals(swagger.getInfo().getTitle().toString(), SWAGGER_INFO_TITLE);
-        assertEquals(swagger.getInfo().getVersion().toString(), SWAGGER_INFO_VERSION);
-        assertEquals(swagger.getHost().toString(), SWAGGER_HOST);
-        assertEquals(swagger.getBasePath().toString(), SWAGGER_BASE_PATH);
+        assertEquals(swagger.getSwagger(), SWAGGER_VERSION);
+        assertEquals(swagger.getInfo().getTitle(), SWAGGER_INFO_TITLE);
+        assertEquals(swagger.getInfo().getVersion(), SWAGGER_INFO_VERSION);
+        assertEquals(swagger.getHost(), SWAGGER_HOST);
+        assertEquals(swagger.getBasePath(), SWAGGER_BASE_PATH);
     }
 
     @Test
     public void testRequirementThree(){
         final File output = folder.getRoot();
 
-        final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
+        final Swagger swagger = new SwaggerParser().read("src/test/resources/petstore.json");
         CodegenConfig codegenConfig = new JavaClientCodegen();
         codegenConfig.setOutputDir(output.getAbsolutePath());
 
@@ -114,22 +106,25 @@ public class asvTestCases {
         ClientOptInput clientOptInput = new ClientOptInput().opts(new ClientOpts()).swagger(swagger).config(codegenConfig);
 
         DefaultGenerator gen = new DefaultGenerator();
-        gen.opts(clientOptInput);
+        gen.opts(clientOptInput).generate();
 
         final File order = new File(output, MODEL_ORDER_FILE);
         final File category = new File(output, MODEL_CATEGORY_FILE);
         final File tag = new File(output, MODEL_TAG_FILE);
         final File user = new File(output, MODEL_USER_FILE);
         final File pet = new File(output, MODEL_PET_FILE);
-        final File apiResponse = new File(output, MODEL_API_RESPONSE_FILE);
 
         assertNotNull(order);
         assertNotNull(category);
         assertNotNull(tag);
         assertNotNull(user);
         assertNotNull(pet);
-        assertNotNull(apiResponse);
 
+        assertTrue(order.exists());
+        assertTrue(category.exists());
+        assertTrue(tag.exists());
+        assertTrue(user.exists());
+        assertTrue(pet.exists());
     }
 
     @Test
