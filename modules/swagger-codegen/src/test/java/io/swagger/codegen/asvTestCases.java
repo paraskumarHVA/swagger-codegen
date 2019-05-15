@@ -4,8 +4,10 @@ import io.swagger.codegen.languages.JavaClientCodegen;
 import io.swagger.codegen.languages.LumenServerCodegen;
 import io.swagger.codegen.languages.PhpClientCodegen;
 import io.swagger.codegen.languages.StaticHtmlGenerator;
+import io.swagger.models.Model;
 import io.swagger.models.Swagger;
 import io.swagger.parser.SwaggerParser;
+import org.apache.commons.io.FileUtils;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.testng.annotations.AfterMethod;
@@ -13,11 +15,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class asvTestCases {
-    private static final String TEST_SKIP_OVERWRITE = "testSkipOverwrite";
     private static final String POM_FILE = "pom.xml";
     private static final String MODEL_ORDER_FILE = "/src/main/java/io/swagger/client/model/Order.java";
     private static final String MODEL_USER_FILE = "/src/main/java/io/swagger/client/model/User.java";
@@ -54,10 +57,17 @@ public class asvTestCases {
     }
 
     @Test
-    public void testRequirementOne(){
+    public void testRequirementOne() throws IOException {
         final File output = folder.getRoot();
+        File copied = new File("src/test/resources/petstore.json");
 
-        final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
+        FileUtils.copyFileToDirectory(copied, output);
+
+        final File openApiDoc = new File(output,"/petstore.json");
+        assertNotNull(openApiDoc);
+        assertTrue(openApiDoc.exists());
+
+        final Swagger swagger = swaggerParser.read(String.valueOf(openApiDoc));
         CodegenConfig codegenConfig = new JavaClientCodegen();
         codegenConfig.setOutputDir(output.getAbsolutePath());
 
@@ -65,8 +75,12 @@ public class asvTestCases {
 
         DefaultGenerator gen = new DefaultGenerator();
         gen.opts(clientOptInput).generate();
-        final File order = new File(output, MODEL_ORDER_FILE);
-        assertTrue(order.exists());
+
+        final File pom = new File(output, POM_FILE);
+        assertNotNull(pom);
+        assertTrue(pom.exists());
+
+        assertEquals(pom.getParent(), openApiDoc.getParent());
     }
 
     @Test
@@ -114,7 +128,21 @@ public class asvTestCases {
 
     @Test
     public void testRequirementFour(){
+        final File output = folder.getRoot();
 
+        final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
+
+        Map<String, Model> definitions = swagger.getDefinitions();
+
+        CodegenConfig codegenConfig = new JavaClientCodegen();
+        codegenConfig.setOutputDir(output.getAbsolutePath());
+
+        ClientOptInput clientOptInput = new ClientOptInput().opts(new ClientOpts()).swagger(swagger).config(codegenConfig);
+
+        DefaultGenerator gen = new DefaultGenerator();
+        gen.opts(clientOptInput).generate();
+
+        final File order = new File(output, MODEL_ORDER_FILE);
     }
 
     @Test
@@ -150,8 +178,9 @@ public class asvTestCases {
     }
 
     @Test
-    public void testRequirementSix(){
+    public void testRequirementSix() {
         final File output = folder.getRoot();
+
 
         final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
         CodegenConfig codegenConfig = new LumenServerCodegen();
