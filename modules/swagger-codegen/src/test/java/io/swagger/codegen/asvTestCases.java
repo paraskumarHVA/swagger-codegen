@@ -4,6 +4,7 @@ import io.swagger.codegen.languages.JavaClientCodegen;
 import io.swagger.models.Swagger;
 import io.swagger.parser.SwaggerParser;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mock;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -33,7 +34,10 @@ public class asvTestCases {
     private static final String SWAGGER_HOST = "petstore.swagger.io";
     private static final String SWAGGER_BASE_PATH = "/v2";
 
-    public TemporaryFolder folder = new TemporaryFolder();
+    @Mock
+    private TemporaryFolder folder = new TemporaryFolder();
+    @Mock
+    private SwaggerParser swaggerParser = new SwaggerParser();
 
     @BeforeMethod
     public void setUp() throws Exception {
@@ -49,7 +53,7 @@ public class asvTestCases {
     public void testRequirementOne(){
         final File output = folder.getRoot();
 
-        final Swagger swagger = new SwaggerParser().read("src/test/resources/petstore.json");
+        final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
         CodegenConfig codegenConfig = new JavaClientCodegen();
         codegenConfig.setOutputDir(output.getAbsolutePath());
 
@@ -63,7 +67,7 @@ public class asvTestCases {
 
     @Test
     public void testRequirementTwo(){
-        final Swagger swagger = new SwaggerParser().read("src/test/resources/2_0/petstore.json");
+        final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
 
         assertEquals(swagger.getSwagger(), SWAGGER_VERSION);
         assertEquals(swagger.getInfo().getTitle(), SWAGGER_INFO_TITLE);
@@ -76,7 +80,7 @@ public class asvTestCases {
     public void testRequirementThree(){
         final File output = folder.getRoot();
 
-        final Swagger swagger = new SwaggerParser().read("src/test/resources/petstore.json");
+        final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
         CodegenConfig codegenConfig = new JavaClientCodegen();
         codegenConfig.setOutputDir(output.getAbsolutePath());
 
@@ -99,7 +103,7 @@ public class asvTestCases {
     public void testRequirementFive(){
         final File output = folder.getRoot();
 
-        final Swagger swagger = new SwaggerParser().read("src/test/resources/petstore.json");
+        final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
         CodegenConfig codegenConfig = new JavaClientCodegen();
         codegenConfig.setOutputDir(output.getAbsolutePath());
 
