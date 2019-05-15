@@ -91,11 +91,25 @@ public class asvTestCases {
         ClientOptInput clientOptInput = new ClientOptInput().opts(new ClientOpts()).swagger(swagger).config(codegenConfig);
 
         DefaultGenerator gen = new DefaultGenerator();
-        gen.opts(clientOptInput);
+        gen.opts(clientOptInput).generate();
 
         final File order = new File(output, MODEL_ORDER_FILE);
-        assertNotNull(order);
+        final File category = new File(output, MODEL_CATEGORY_FILE);
+        final File tag = new File(output, MODEL_TAG_FILE);
+        final File user = new File(output, MODEL_USER_FILE);
+        final File pet = new File(output, MODEL_PET_FILE);
 
+        assertNotNull(order);
+        assertNotNull(category);
+        assertNotNull(tag);
+        assertNotNull(user);
+        assertNotNull(pet);
+
+        assertEquals(getFileExtension(order), ".java");
+        assertEquals(getFileExtension(category), ".java");
+        assertEquals(getFileExtension(tag), ".java");
+        assertEquals(getFileExtension(user), ".java");
+        assertEquals(getFileExtension(pet), ".java");
     }
 
     @Test
