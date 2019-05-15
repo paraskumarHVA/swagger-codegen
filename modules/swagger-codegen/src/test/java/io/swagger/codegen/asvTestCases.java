@@ -13,11 +13,17 @@ import java.util.List;
 import java.util.Map;
 
 import static org.testng.Assert.*;
+//import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class asvTestCases {
     private static final String TEST_SKIP_OVERWRITE = "testSkipOverwrite";
     private static final String POM_FILE = "pom.xml";
     private static final String MODEL_ORDER_FILE = "/src/main/java/io/swagger/client/model/Order.java";
+    private static final String MODEL_USER_FILE = "/src/main/java/io/swagger/client/model/User.java";
+    private static final String MODEL_CATEGORY_FILE = "/src/main/java/io/swagger/client/model/Category.java";
+    private static final String MODEL_TAG_FILE = "/src/main/java/io/swagger/client/model/Tag.java";
+    private static final String MODEL_PET_FILE = "/src/main/java/io/swagger/client/model/Pet.java";
+    private static final String MODEL_API_RESPONSE_FILE = "/src/main/java/io/swagger/client/model/ApiResponse.java";
     private static final String API_CLIENT_FILE = "/src/main/java/io/swagger/client/ApiClient.java";
     private static final String BUILD_GRADLE_FILE = "build.gradle";
 
@@ -83,6 +89,9 @@ public class asvTestCases {
         DefaultGenerator gen = new DefaultGenerator();
         gen.opts(clientOptInput);
 
+        final File order = new File(output, MODEL_ORDER_FILE);
+        assertNotNull(order);
+
     }
 
     @Test
@@ -92,6 +101,30 @@ public class asvTestCases {
 
     @Test
     public void testRequirementFive(){
+        final File output = folder.getRoot();
+
+        final Swagger swagger = new SwaggerParser().read("src/test/resources/petstore.json");
+        CodegenConfig codegenConfig = new JavaClientCodegen();
+        codegenConfig.setOutputDir(output.getAbsolutePath());
+
+        ClientOptInput clientOptInput = new ClientOptInput().opts(new ClientOpts()).swagger(swagger).config(codegenConfig);
+
+        DefaultGenerator gen = new DefaultGenerator();
+        gen.opts(clientOptInput);
+
+        final File order = new File(output, MODEL_ORDER_FILE);
+        final File category = new File(output, MODEL_CATEGORY_FILE);
+        final File tag = new File(output, MODEL_TAG_FILE);
+        final File user = new File(output, MODEL_USER_FILE);
+        final File pet = new File(output, MODEL_PET_FILE);
+        final File apiResponse = new File(output, MODEL_API_RESPONSE_FILE);
+
+        assertNotNull(order);
+        assertNotNull(category);
+        assertNotNull(tag);
+        assertNotNull(user);
+        assertNotNull(pet);
+        assertNotNull(apiResponse);
 
     }
 
