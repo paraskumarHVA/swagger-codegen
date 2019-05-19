@@ -59,27 +59,22 @@ public class asvTestCases {
     @Test
     public void testRequirementOne() throws IOException {
         final File output = folder.getRoot();
-        File copied = new File("src/test/resources/petstore.json");
-
-        FileUtils.copyFileToDirectory(copied, output);
-
         final File openApiDoc = new File(output,"/petstore.json");
-        assertNotNull(openApiDoc);
-        assertTrue(openApiDoc.exists());
-
+        final File copied = new File("src/test/resources/petstore.json");
         final Swagger swagger = swaggerParser.read(String.valueOf(openApiDoc));
-        CodegenConfig codegenConfig = new JavaClientCodegen();
+        final File pom = new File(output, POM_FILE);
+        final CodegenConfig codegenConfig = new JavaClientCodegen();
+        final DefaultGenerator gen = new DefaultGenerator();
+        
+        FileUtils.copyFileToDirectory(copied, output);
         codegenConfig.setOutputDir(output.getAbsolutePath());
-
         ClientOptInput clientOptInput = new ClientOptInput().opts(new ClientOpts()).swagger(swagger).config(codegenConfig);
-
-        DefaultGenerator gen = new DefaultGenerator();
         gen.opts(clientOptInput).generate();
 
-        final File pom = new File(output, POM_FILE);
+        assertNotNull(openApiDoc);
+        assertTrue(openApiDoc.exists());
         assertNotNull(pom);
         assertTrue(pom.exists());
-
         assertEquals(pom.getParent(), openApiDoc.getParent());
     }
 
