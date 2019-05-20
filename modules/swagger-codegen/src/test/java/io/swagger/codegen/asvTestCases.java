@@ -1,13 +1,11 @@
 package io.swagger.codegen;
 
-import com.fasterxml.jackson.databind.util.TypeKey;
 import io.swagger.codegen.languages.JavaClientCodegen;
 import io.swagger.codegen.languages.LumenServerCodegen;
 import io.swagger.codegen.languages.StaticHtmlGenerator;
 import io.swagger.codegen.languages.SwaggerGenerator;
 import io.swagger.models.Model;
 import io.swagger.models.Swagger;
-import io.swagger.models.parameters.Parameter;
 import io.swagger.parser.SwaggerParser;
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONObject;
@@ -22,12 +20,11 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testng.Assert.assertEquals;
 
 public class asvTestCases {
@@ -75,7 +72,7 @@ public class asvTestCases {
     }
 
     @AfterMethod
-    public void tearDown() throws Exception {
+    public void tearDown() {
         folder.delete();
     }
 
@@ -261,8 +258,8 @@ public class asvTestCases {
         assertEquals(4, models.size());
 
         int counter = 0;
-        for (String name: models.keySet()){
-            switch (counter){
+        for (String name : models.keySet()) {
+            switch (counter) {
                 case 0:
                     assertEquals(name, "Student");
                     break;
