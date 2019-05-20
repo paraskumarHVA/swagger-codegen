@@ -1,9 +1,15 @@
 package io.swagger.codegen;
 
-import io.swagger.codegen.languages.*;
+import io.swagger.codegen.languages.JavaClientCodegen;
+import io.swagger.codegen.languages.LumenServerCodegen;
+import io.swagger.codegen.languages.StaticHtmlGenerator;
+import io.swagger.codegen.languages.SwaggerGenerator;
 import io.swagger.models.Swagger;
 import io.swagger.parser.SwaggerParser;
 import org.apache.commons.io.FileUtils;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.testng.annotations.AfterMethod;
@@ -11,6 +17,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,6 +29,8 @@ public class asvTestCases {
     private static final String MODEL_CATEGORY_FILE = "/src/main/java/io/swagger/client/model/Category.java";
     private static final String MODEL_TAG_FILE = "/src/main/java/io/swagger/client/model/Tag.java";
     private static final String MODEL_PET_FILE = "/src/main/java/io/swagger/client/model/Pet.java";
+    private static final String GENERATED_PHP_CONTROLLER_FILE = "lib/app/Http/Controllers/Controller.php";
+    private static final String GENERATED_PHP_COMPOSER_FILE = "lib/composer.json";
     private static final String GENERATED_HTML_FILE = "index.html";
     private static final String GENERATED_SWAGGER_FILE = "swagger.json";
 
@@ -30,11 +39,27 @@ public class asvTestCases {
     private static final String SWAGGER_INFO_VERSION = "1.0.0";
     private static final String SWAGGER_HOST = "petstore.swagger.io";
     private static final String SWAGGER_BASE_PATH = "/v2";
+    private static final String LUMEN_VERSION = "5.2.*";
 
     @Mock
     private TemporaryFolder folder = new TemporaryFolder();
     @Mock
     private SwaggerParser swaggerParser = new SwaggerParser();
+
+    private static String getFileExtension(File file) {
+        String extension = "";
+
+        try {
+            if (file != null && file.exists()) {
+                String name = file.getName();
+                extension = name.substring(name.lastIndexOf("."));
+            }
+        } catch (Exception e) {
+            extension = "";
+        }
+
+        return extension;
+    }
 
     @BeforeMethod
     public void setUp() throws Exception {
@@ -52,7 +77,7 @@ public class asvTestCases {
         final File copied = new File("src/test/resources/petstore.json");
         FileUtils.copyFileToDirectory(copied, output); //Copy file to temp folder
 
-        final File openApiDoc = new File(output,"/petstore.json"); //Get file from temp folder
+        final File openApiDoc = new File(output, "/petstore.json"); //Get file from temp folder
         assertNotNull(openApiDoc);
         assertTrue(openApiDoc.exists());
 
@@ -71,7 +96,7 @@ public class asvTestCases {
     }
 
     @Test
-    public void testRequirementTwo(){
+    public void testRequirementTwo() {
         final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
 
         assertEquals(swagger.getSwagger(), SWAGGER_VERSION);
@@ -82,7 +107,7 @@ public class asvTestCases {
     }
 
     @Test
-    public void testRequirementThree(){
+    public void testRequirementThree() {
         final File output = folder.getRoot();
 
         final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
@@ -114,7 +139,7 @@ public class asvTestCases {
     }
 
     @Test
-    public void testRequirementFour(){
+    public void testRequirementFour() {
         final File output = folder.getRoot();
 
         final Swagger swagger = swaggerParser.read("src/test/resources/student.yml");
@@ -142,7 +167,7 @@ public class asvTestCases {
     }
 
     @Test
-    public void testRequirementFive(){
+    public void testRequirementFive() {
         final File output = folder.getRoot();
 
         final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
@@ -176,7 +201,7 @@ public class asvTestCases {
     @Test
     public void testRequirementSix() {
         final File output = folder.getRoot();
-        
+
         final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
         CodegenConfig codegenConfig = new LumenServerCodegen();
         codegenConfig.setOutputDir(output.getAbsolutePath());
@@ -186,15 +211,36 @@ public class asvTestCases {
         DefaultGenerator gen = new DefaultGenerator();
         gen.opts(clientOptInput).generate();
 
+        final File phpFile = new File(output, GENERATED_PHP_CONTROLLER_FILE);
+        assertNotNull(phpFile);
+        assertTrue(phpFile.exists());
+
+        String phpExtension = getFileExtension(phpFile);
+        assertEquals(phpExtension, ".php");
+
+        final File composerFile = new File(output, GENERATED_PHP_COMPOSER_FILE);
+        assertNotNull(composerFile);
+        assertTrue(composerFile.exists());
+
+        JSONParser parser = new JSONParser();
+        try {
+            JSONObject jsonObject = (JSONObject) parser.parse(new FileReader(composerFile));
+            JSONObject require = (JSONObject) jsonObject.get("require");
+            String expectLumenVersion = (String) require.get("laravel/lumen-framework");
+
+            assertEquals(LUMEN_VERSION, expectLumenVersion);
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
-    public void testRequirementSeven(){
+    public void testRequirementSeven() {
 
     }
 
     @Test
-    public void testRequirementEight(){
+    public void testRequirementEight() {
         final File output = folder.getRoot();
 
         final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
@@ -213,22 +259,5 @@ public class asvTestCases {
         String htmlExtension = getFileExtension(htmlFile);
 
         assertEquals(htmlExtension, ".html");
-    }
-
-
-    private static String getFileExtension(File file) {
-        String extension = "";
-
-        try {
-            if (file != null && file.exists()) {
-                String name = file.getName();
-                extension = name.substring(name.lastIndexOf("."));
-            }
-        } catch (Exception e) {
-            extension = "";
-        }
-
-        return extension;
-
     }
 }
