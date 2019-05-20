@@ -1,0 +1,119 @@
+swagger: "2.0"
+info:
+  title: student
+  description: My API
+  version: 0.5
+host: hva.nl
+basePath: /
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /students/{id}:
+    get:
+      summary: Find student by ID
+      description: Returns a single student
+      operationId: show
+      parameters:
+      - name: id
+        in: path
+        required: true
+        type: integer
+        format: int64
+      responses:
+        default:
+          schema:
+            $ref: '#/components/schemas/Student'
+    delete:
+      summary: Deletes a student
+      description: Student object that needs to be deleted
+      operationId: delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        type: integer
+        format: int64
+      responses:
+        default:
+          schema:
+            $ref: '#/components/schemas/HttpResponse'
+  /students:
+    put:
+      summary: Update an existing student
+      description: Student object that needs to be updated
+      operationId: update
+      parameters:
+        - in: body
+          name: student
+          description: The student to update.
+          required: true
+          schema:
+            $ref: '#/components/schemas/StudentUpdateCommand'
+      responses:
+        default:
+          schema:
+            $ref: '#/components/schemas/HttpResponse'
+    post:
+      summary: Add a new student
+      description: Student object that needs to be added
+      operationId: save
+      parameters:
+        - in: body
+          name: student
+          description: The student to create.
+          required: true
+          schema:
+            $ref: '#/components/schemas/StudentSaveCommand'
+      responses:
+        default:
+          schema:
+            $ref: '#/components/schemas/Student'
+definitions:
+    Student:
+      type: object
+      properties:
+        ldap:
+          type: integer
+          format: int32
+        id:
+          type: integer
+          format: int64
+        firstName:
+          type: string
+        middleName:
+          type: string
+        lastName:
+          type: string
+    HttpResponse:
+      type: object
+    StudentUpdateCommand:
+      type: object
+      required:
+        - firstName
+        - middleName
+        - lastName
+      properties:
+        id:
+          type: integer
+          format: int64
+        firstName:
+          minLength: 1
+          type: string
+        middleName:
+          type: string
+        lastName:
+          type: string
+    StudentSaveCommand:
+      type: object
+      properties:
+        firstName:
+          minLength: 1
+          type: string
+        middleName:
+          type: string
+        lastName:
+          type: string
