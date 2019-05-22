@@ -46,6 +46,9 @@ public class asvTestCases {
     private static final String SWAGGER_BASE_PATH = "/v2";
     private static final String LUMEN_VERSION = "5.2.*";
 
+    private static final String PET_STORE_JSON_FILE = "src/test/resources/petstore.json";
+    private static final String STUDENT_YAML_FILE = "src/test/resources/student.yml";
+
     @Mock
     private TemporaryFolder folder = new TemporaryFolder();
     @Mock
@@ -78,23 +81,23 @@ public class asvTestCases {
 
     @Test
     public void testRequirementOne() throws IOException {
+        final String PET_STORE_FILE_NAME = "/petstore.json";
         final File output = folder.getRoot();
-        final File copied = new File("src/test/resources/petstore.json");
+
+        File copied = new File(PET_STORE_JSON_FILE);
         FileUtils.copyFileToDirectory(copied, output); //Copy file to temp folder
+        File openApiDoc = new File(output, PET_STORE_FILE_NAME); //Get file from temp folder
+        Swagger swagger = swaggerParser.read(String.valueOf(openApiDoc));
+        File pom = new File(output, POM_FILE);
 
-        final File openApiDoc = new File(output, "/petstore.json"); //Get file from temp folder
-        assertNotNull(openApiDoc);
-        assertTrue(openApiDoc.exists());
-
-        final Swagger swagger = swaggerParser.read(String.valueOf(openApiDoc));
-        final File pom = new File(output, POM_FILE);
-        final CodegenConfig codegenConfig = new JavaClientCodegen();
-        final DefaultGenerator gen = new DefaultGenerator();
-
+        CodegenConfig codegenConfig = new JavaClientCodegen();
+        DefaultGenerator gen = new DefaultGenerator();
         codegenConfig.setOutputDir(output.getAbsolutePath());
         ClientOptInput clientOptInput = new ClientOptInput().opts(new ClientOpts()).swagger(swagger).config(codegenConfig);
         gen.opts(clientOptInput).generate();
 
+        assertNotNull(openApiDoc);
+        assertTrue(openApiDoc.exists());
         assertNotNull(pom);
         assertTrue(pom.exists());
         assertEquals(pom.getParent(), openApiDoc.getParent());
@@ -102,7 +105,7 @@ public class asvTestCases {
 
     @Test
     public void testRequirementTwo() {
-        final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
+        final Swagger swagger = swaggerParser.read(PET_STORE_JSON_FILE);
 
         assertEquals(swagger.getSwagger(), SWAGGER_VERSION);
         assertEquals(swagger.getInfo().getTitle(), SWAGGER_INFO_TITLE);
@@ -113,22 +116,21 @@ public class asvTestCases {
 
     @Test
     public void testRequirementThree() {
+        final String JAVA_EXTENSION = ".java";
         final File output = folder.getRoot();
 
-        final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
+        Swagger swagger = swaggerParser.read(PET_STORE_JSON_FILE);
         CodegenConfig codegenConfig = new JavaClientCodegen();
         codegenConfig.setOutputDir(output.getAbsolutePath());
-
         ClientOptInput clientOptInput = new ClientOptInput().opts(new ClientOpts()).swagger(swagger).config(codegenConfig);
-
         DefaultGenerator gen = new DefaultGenerator();
         gen.opts(clientOptInput).generate();
 
-        final File order = new File(output, MODEL_ORDER_FILE);
-        final File category = new File(output, MODEL_CATEGORY_FILE);
-        final File tag = new File(output, MODEL_TAG_FILE);
-        final File user = new File(output, MODEL_USER_FILE);
-        final File pet = new File(output, MODEL_PET_FILE);
+        File order = new File(output, MODEL_ORDER_FILE);
+        File category = new File(output, MODEL_CATEGORY_FILE);
+        File tag = new File(output, MODEL_TAG_FILE);
+        File user = new File(output, MODEL_USER_FILE);
+        File pet = new File(output, MODEL_PET_FILE);
 
         assertNotNull(order);
         assertNotNull(category);
@@ -136,34 +138,29 @@ public class asvTestCases {
         assertNotNull(user);
         assertNotNull(pet);
 
-        assertEquals(getFileExtension(order), ".java");
-        assertEquals(getFileExtension(category), ".java");
-        assertEquals(getFileExtension(tag), ".java");
-        assertEquals(getFileExtension(user), ".java");
-        assertEquals(getFileExtension(pet), ".java");
+        assertEquals(getFileExtension(order), JAVA_EXTENSION);
+        assertEquals(getFileExtension(category), JAVA_EXTENSION);
+        assertEquals(getFileExtension(tag), JAVA_EXTENSION);
+        assertEquals(getFileExtension(user), JAVA_EXTENSION);
+        assertEquals(getFileExtension(pet), JAVA_EXTENSION);
     }
 
     @Test
     public void testRequirementFour() {
         final File output = folder.getRoot();
-
-        final Swagger swagger = swaggerParser.read("src/test/resources/student.yml");
+        final Swagger swagger = swaggerParser.read(STUDENT_YAML_FILE);
 
         CodegenConfig codegenConfig = new SwaggerGenerator();
         codegenConfig.setOutputDir(output.getAbsolutePath());
-
         ClientOptInput clientOptInput = new ClientOptInput().opts(new ClientOpts()).swagger(swagger).config(codegenConfig);
-
         DefaultGenerator gen = new DefaultGenerator();
         gen.opts(clientOptInput).generate();
 
-        final File swaggerFile = new File(output, GENERATED_SWAGGER_FILE);
+        File swaggerFile = new File(output, GENERATED_SWAGGER_FILE);
+        Swagger swaggerGenerated = swaggerParser.read(String.valueOf(swaggerFile));
 
         assertNotNull(swaggerFile);
         assertTrue(swaggerFile.exists());
-
-        final Swagger swaggerGenerated = swaggerParser.read(String.valueOf(swaggerFile));
-
         assertEquals(swagger.getSwagger(), swaggerGenerated.getSwagger());
         assertEquals(swagger.getInfo().getTitle(), swaggerGenerated.getInfo().getTitle());
         assertEquals(swagger.getInfo().getVersion(), swaggerGenerated.getInfo().getVersion());
@@ -175,20 +172,18 @@ public class asvTestCases {
     public void testRequirementFive() {
         final File output = folder.getRoot();
 
-        final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
+        Swagger swagger = swaggerParser.read(PET_STORE_JSON_FILE);
         CodegenConfig codegenConfig = new JavaClientCodegen();
         codegenConfig.setOutputDir(output.getAbsolutePath());
-
         ClientOptInput clientOptInput = new ClientOptInput().opts(new ClientOpts()).swagger(swagger).config(codegenConfig);
-
         DefaultGenerator gen = new DefaultGenerator();
         gen.opts(clientOptInput).generate();
 
-        final File order = new File(output, MODEL_ORDER_FILE);
-        final File category = new File(output, MODEL_CATEGORY_FILE);
-        final File tag = new File(output, MODEL_TAG_FILE);
-        final File user = new File(output, MODEL_USER_FILE);
-        final File pet = new File(output, MODEL_PET_FILE);
+        File order = new File(output, MODEL_ORDER_FILE);
+        File category = new File(output, MODEL_CATEGORY_FILE);
+        File tag = new File(output, MODEL_TAG_FILE);
+        File user = new File(output, MODEL_USER_FILE);
+        File pet = new File(output, MODEL_PET_FILE);
 
         assertNotNull(order);
         assertNotNull(category);
@@ -205,58 +200,53 @@ public class asvTestCases {
 
     @Test
     public void testRequirementSix() {
+        final String PHP_EXTENSION = ".php";
         final File output = folder.getRoot();
 
-        final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
+        Swagger swagger = swaggerParser.read(PET_STORE_JSON_FILE);
         CodegenConfig codegenConfig = new LumenServerCodegen();
         codegenConfig.setOutputDir(output.getAbsolutePath());
-
         ClientOptInput clientOptInput = new ClientOptInput().opts(new ClientOpts()).swagger(swagger).config(codegenConfig);
-
         DefaultGenerator gen = new DefaultGenerator();
         gen.opts(clientOptInput).generate();
 
-        final File phpFile = new File(output, GENERATED_PHP_CONTROLLER_FILE);
-        assertNotNull(phpFile);
-        assertTrue(phpFile.exists());
-
+        String expectLumenVersion = "";
+        File phpFile = new File(output, GENERATED_PHP_CONTROLLER_FILE);
         String phpExtension = getFileExtension(phpFile);
-        assertEquals(phpExtension, ".php");
-
-        final File composerFile = new File(output, GENERATED_PHP_COMPOSER_FILE);
-        assertNotNull(composerFile);
-        assertTrue(composerFile.exists());
-
+        File composerFile = new File(output, GENERATED_PHP_COMPOSER_FILE);
         JSONParser parser = new JSONParser();
         try {
             JSONObject jsonObject = (JSONObject) parser.parse(new FileReader(composerFile));
             JSONObject require = (JSONObject) jsonObject.get("require");
-            String expectLumenVersion = (String) require.get("laravel/lumen-framework");
-
-            assertEquals(LUMEN_VERSION, expectLumenVersion);
+            expectLumenVersion = (String) require.get("laravel/lumen-framework");
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
+
+        assertNotNull(phpFile);
+        assertTrue(phpFile.exists());
+        assertEquals(phpExtension, PHP_EXTENSION);
+        assertNotNull(composerFile);
+        assertTrue(composerFile.exists());
+        assertEquals(LUMEN_VERSION, expectLumenVersion);
     }
 
     @Test
     public void testRequirementSeven() {
         final File output = folder.getRoot();
-        final Swagger swagger = swaggerParser.read("src/test/resources/student.yml");
+
+        Swagger swagger = swaggerParser.read(STUDENT_YAML_FILE);
         CodegenConfig codegenConfig = new JavaClientCodegen();
         codegenConfig.setOutputDir(output.getAbsolutePath());
-
         ClientOptInput clientOptInput = new ClientOptInput().opts(new ClientOpts()).swagger(swagger).config(codegenConfig);
-
         DefaultGenerator generator = new DefaultGenerator();
         generator.opts(clientOptInput);
 
         Map<String, List<CodegenOperation>> paths = generator.processPaths(swagger.getPaths());
-        assertEquals(1, paths.size());
-
         Map<String, Model> models = generator.swagger.getDefinitions();
-        assertEquals(4, models.size());
 
+        assertEquals(1, paths.size());
+        assertEquals(4, models.size());
         int counter = 0;
         for (String name : models.keySet()) {
             switch (counter) {
@@ -279,23 +269,21 @@ public class asvTestCases {
 
     @Test
     public void testRequirementEight() {
+        final String HTML_EXTENSION = ".html";
         final File output = folder.getRoot();
 
-        final Swagger swagger = swaggerParser.read("src/test/resources/petstore.json");
+        Swagger swagger = swaggerParser.read(PET_STORE_JSON_FILE);
         CodegenConfig codegenConfig = new StaticHtmlGenerator();
         codegenConfig.setOutputDir(output.getAbsolutePath());
-
         ClientOptInput clientOptInput = new ClientOptInput().opts(new ClientOpts()).swagger(swagger).config(codegenConfig);
-
         DefaultGenerator gen = new DefaultGenerator();
         gen.opts(clientOptInput).generate();
 
-        final File htmlFile = new File(output, GENERATED_HTML_FILE);
-        assertNotNull(htmlFile);
-        assertTrue(htmlFile.exists());
-
+        File htmlFile = new File(output, GENERATED_HTML_FILE);
         String htmlExtension = getFileExtension(htmlFile);
 
-        assertEquals(htmlExtension, ".html");
+        assertNotNull(htmlFile);
+        assertTrue(htmlFile.exists());
+        assertEquals(htmlExtension, HTML_EXTENSION);
     }
 }
