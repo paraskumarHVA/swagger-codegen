@@ -233,6 +233,9 @@ public class asvTestCases {
 
     @Test
     public void testRequirementSeven() {
+        final String[] EXPECTED_MODELS = new String[]{"Student", "HttpResponse", "StudentUpdateCommand", "StudentSaveCommand"};
+        final int EXPECTED_PATHS = 1;
+        final int EXPECTED_LENGTH_OF_MODELS = 4;
         final File output = folder.getRoot();
 
         Swagger swagger = swaggerParser.read(STUDENT_YAML_FILE);
@@ -243,27 +246,13 @@ public class asvTestCases {
         generator.opts(clientOptInput);
 
         Map<String, List<CodegenOperation>> paths = generator.processPaths(swagger.getPaths());
-        Map<String, Model> models = generator.swagger.getDefinitions();
+        Map<String, Model> modelsMap = generator.swagger.getDefinitions();
+        Object[] models = modelsMap.keySet().toArray();
 
-        assertEquals(1, paths.size());
-        assertEquals(4, models.size());
-        int counter = 0;
-        for (String name : models.keySet()) {
-            switch (counter) {
-                case 0:
-                    assertEquals(name, "Student");
-                    break;
-                case 1:
-                    assertEquals(name, "HttpResponse");
-                    break;
-                case 2:
-                    assertEquals(name, "StudentUpdateCommand");
-                    break;
-                case 3:
-                    assertEquals(name, "StudentSaveCommand");
-                    break;
-            }
-            counter++;
+        assertEquals(paths.size(), EXPECTED_PATHS);
+        assertEquals(models.length, EXPECTED_LENGTH_OF_MODELS);
+        for (int i = 0; i < models.length; i++) {
+            assertEquals(models[i], EXPECTED_MODELS[i]);
         }
     }
 
