@@ -148,8 +148,8 @@ public class asvTestCases {
     @Test
     public void testRequirementFour() {
         final File output = folder.getRoot();
-        final Swagger swagger = swaggerParser.read(STUDENT_YAML_FILE);
 
+        Swagger swagger = swaggerParser.read(STUDENT_YAML_FILE);
         CodegenConfig codegenConfig = new SwaggerGenerator();
         codegenConfig.setOutputDir(output.getAbsolutePath());
         ClientOptInput clientOptInput = new ClientOptInput().opts(new ClientOpts()).swagger(swagger).config(codegenConfig);
